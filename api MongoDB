@@ -1,0 +1,25 @@
+شغال 
+const express = require('express'); //اول شي نسويه نكتب ريكواير لاكس برس بعد ماحملناه عشان نشغله ويصير يستقبل اي ركوست 
+const app = express(); //اسوي الداله (اب دوت لسن ) عشان احدد فيه البورت الي بيتم ارسال ركويست عليه 
+const mongoose = require ('mongoose') //قمت بتحميل مونقوباكت والحين قمت باستدعائه للمشروع باستخدام)(require) 
+
+
+//اضفت قاعده بيانات من موقع mongoosejs عشان اذا البيانات الي بتعامل معها اكبر
+
+mongoose.connect('mongodb://127.0.0.1:27017/Cats');
+
+const Cat = mongoose.model('Cat', { name: String });
+
+//سويت داله بحيث اذا ارسلت ركويست ترجع لي مسج  بسيطه
+app.get('/api/cats', async (req, res) => {
+    try {
+        const cats = await Cat.find(); // ننتظر استرجاع البيانات باستخدام await
+        res.json(cats);
+    } catch (err) {
+        console.log(`There is an error: ${err}`);
+        res.status(500).send(err);
+    }
+});
+
+app.listen(3000, () => console.log('server is up on port 3000')) //ونحط مسج عشان نعرف ان اكسبرس اشتغل 
+//كذا نكون جهزنا اكسبرس
