@@ -1,8 +1,16 @@
-شغال// 
+
 const express = require('express'); //اول شي نسويه نكتب ريكواير لاكس برس بعد ماحملناه عشان نشغله ويصير يستقبل اي ركوست 
 const app = express(); //اسوي الداله (اب دوت لسن ) عشان احدد فيه البورت الي بيتم ارسال ركويست عليه 
 const mongoose = require ('mongoose') //قمت بتحميل مونقوباكت والحين قمت باستدعائه للمشروع باستخدام)(require) 
+const bodyParser = require('body-parser') //سوينا ري كواير للبكج get
+var methodOverride = require('method-override')// put سوينا ري كواير
 
+app.use(methodOverride('X-HTTP-Method-Override'))//سوينا اب دوت يوز عشان تشتغل put اثناء استقبال الري كويست
+// اخذنا الي يخلي السيرفر يقراء البيانات من الري كويستget
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// خذنا الي يخلي السيرفر يقراء البيانات من الري كويستget
+app.use(bodyParser.json())
 
 //اضفت قاعده بيانات من موقع mongoosejs عشان اذا البيانات الي بتعامل معها اكبر
 
@@ -10,6 +18,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/Cats');
 
 const Cat = mongoose.model('Cat', { name: String });
 
+//get
 //سويت داله بحيث اذا ارسلت ركويست ترجع لي مسج  بسيطه
 app.get('/api/cats', async (req, res) => {
     try {
@@ -18,6 +27,36 @@ app.get('/api/cats', async (req, res) => {
     } catch (err) {
         console.log(`There is an error: ${err}`);
         res.status(500).send(err);
+    }
+});
+//post 
+app.post('/api/cats/create', async (req, res) => {
+    const cat = new Cat({name: req.body.name})
+cat.save().then(()=>{//هذي الداله من مونقوس تمكنا من حفظ البيانات في الداتا بيس الي انشاءناها
+    res.send('data added successfully')
+})
+}) 
+//put
+app.put('/api/cats/update/:_id', async (req, res) => {
+    try {
+        const id = req.params._id;
+        await Cat.findByIdAndUpdate(id, { name: req.body.name });
+        res.send('data updated successfully');
+    } catch (err) {
+        console.log(`There is an error: ${err}`);
+        res.status(500).send(err);
+    }
+});
+//DELETE
+app.delete('/api/cats/remove/:_id', async (req, res) => {
+    const id = req.params._id;
+
+    try {
+        await Cat.findByIdAndDelete(id);
+        res.send('data deleted successfully');
+    } catch (err) {
+        console.log(`There is an error: ${err}`);
+        res.status(500).send('Error deleting data');
     }
 });
 
